@@ -5,6 +5,7 @@
 
 **reacTIVision** is an open source, cross-platform computer vision framework for the fast and robust tracking of fiducial markers attached onto physical objects, as well as for multi-touch finger tracking. It was mainly designed as a toolkit for the rapid development of table-based tangible user interfaces (TUI) and multi-touch interactive surfaces. This framework has been developed by Martin Kaltenbrunner and Ross Bencina as part of the [Reactable project](http://www.reactable.com/), a tangible modular synthesizer.
 
+**This fork** is designed to match the specifics needs of Mashup Studio clients.
 
 **reacTIVision** is a standalone application, which sends `Open Sound Control` (OSC) messages via a `UDP network socket` to any connected client application. It implements the [TUIO](http://www.tuio.org/) protocol, which has been specially designed for transmitting the state of tangible objects and multi-touch events from a tabletop surface. 
 
