@@ -329,7 +329,7 @@ void VisionEngine::initFrameProcessors() {
         if(success) {
             
             std::vector<std::string> processor_text = (*frame)->getOptions();
-            if (processor_text.size()>0) help_text.push_back("");
+            if (processor_text.size()>0) help_text.push_back(" ");
             for(std::vector<std::string>::iterator processor_line = processor_text.begin(); processor_line!=processor_text.end(); processor_line++) {
                 help_text.push_back(*processor_line);
             }
@@ -420,7 +420,7 @@ VisionEngine::VisionEngine(const char* name, application_settings *config)
 , format_( 1 )
 {
     app_config_ = config;
-    camera_config_ = CameraTool::readSettings(app_config_->camera_config);
+	camera_config_ = CameraTool::readSettings(app_config_->camera_config);
     setupCamera();
 	
     lastTime_ = currentSeconds();

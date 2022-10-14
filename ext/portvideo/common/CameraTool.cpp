@@ -49,6 +49,7 @@ void CameraTool::printConfig(std::vector<CameraConfig> cfg_list) {
 			device = cfg_list[i].device;
 			printf("  %d: %s\n",cfg_list[i].device,cfg_list[i].name);
 			format = -1;
+			printf("path: %s\n", cfg_list[i].requiredPath);
 		}
 		
 		if ((cfg_list[i].cam_format != format) || (cfg_list[i].frame_mode != frame_mode)) {
@@ -210,7 +211,35 @@ CameraEngine* CameraTool::getCamera(CameraConfig *cam_cfg) {
 #ifdef WIN32
 	dev_count = videoInputCamera::getDeviceCount();
 	if (dev_count==0) printf("no system camera found\n");
-	else camera = videoInputCamera::getCamera(cam_cfg);
+	else {
+		// MASHUP STUDIO CODE
+		std::vector<CameraConfig> cfg_list = videoInputCamera::getCameraConfigs();
+		int device = -1;
+		// ON FORCE D'ABORD EN FONCTION DU NAME
+		for (int i=0;i<(int)cfg_list.size();i++) {
+			if (cfg_list[i].device != device) {
+				device = cfg_list[i].device;
+				std::string dName = cfg_list[i].name;
+				if (dName.compare(cam_cfg->requiredName) == 0 ) {
+					cam_cfg->device = device;
+				}
+			}
+		}
+		// PUIS EN FONCTION DU PATH
+		for (int i=0;i<(int)cfg_list.size();i++) {
+			if (cfg_list[i].device != device) {
+				device = cfg_list[i].device;
+				std::string dPath = cfg_list[i].requiredPath;
+				if (dPath.compare(cam_cfg->requiredPath) == 0 ) {
+					cam_cfg->device = device;
+				}
+			}
+		}
+		
+		// printf("id : %i\n", cam_cfg->device);
+		// END MASHUP STUDIO CODE
+		camera = videoInputCamera::getCamera(cam_cfg);
+	}
 	if (camera) return camera;
 	else return getDefaultCamera();
 #else
@@ -387,7 +416,15 @@ CameraConfig* CameraTool::readSettings(const char* cfgfile) {
 		if (strcmp(camera_element->Attribute("id"), "auto" ) == 0) cam_cfg.device=SETTING_AUTO;
 		else cam_cfg.device = atoi(camera_element->Attribute("id"));
 	}
-	
+
+	// MASHUP STUDIO CODE
+	if(camera_element->Attribute("name")!=NULL) {
+		sprintf(cam_cfg.requiredName, camera_element->Attribute("name"));
+	}
+	if(camera_element->Attribute("path")!=NULL) {
+		sprintf(cam_cfg.requiredPath, camera_element->Attribute("path"));
+	}
+	// END MASHUP STUDIO CODE
 	if(camera_element->Attribute("src")!=NULL) {
 #ifdef __APPLE__
 		sprintf(cam_cfg.src,"%s/../%s",path,camera_element->Attribute("src"));

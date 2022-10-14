@@ -31,8 +31,10 @@ bool FidtrackFinder::init(int w, int h, int sb, int db) {
 	}
 
 	//help_text.push_back( "FidtrackFinder:");
+	/* MODIF MASHUP
 	help_text.push_back( "   f - adjust finger size & sensitivity");
 	help_text.push_back( "   b - adjust blob size & activation");
+	*/
 	help_text.push_back( "   y - toggle yamaarashi detection");
 
 	initialize_treeidmap( &treeidmap, tree_config );	
@@ -67,7 +69,8 @@ bool FidtrackFinder::init(int w, int h, int sb, int db) {
 bool FidtrackFinder::toggleFlag(unsigned char flag, bool lock) {
 	
 	FiducialFinder::toggleFlag(flag,lock);
-
+	// modif MASHUP
+	/*
 	if (flag==KEY_F) {
 		if (setFingerSize || setFingerSensitivity) {
 			setFingerSize = false;
@@ -91,7 +94,8 @@ bool FidtrackFinder::toggleFlag(unsigned char flag, bool lock) {
 			show_settings = true;
 			return true;
 		}
-	} else if (flag==KEY_Y) {
+	} else if (flag==KEY_Y) { */
+	if (flag==KEY_Y) {
 		if (setYamarashi || setYamaFlip) {
 			setYamarashi = false;
 			setYamaFlip = false;
@@ -102,7 +106,8 @@ bool FidtrackFinder::toggleFlag(unsigned char flag, bool lock) {
 			show_settings = true;
 			return true;
 		}
-	} else if (setFingerSize || setFingerSensitivity) {
+	}
+	/*else if (setFingerSize || setFingerSensitivity) {
 		switch(flag) {
 			case KEY_LEFT:
 				if (setFingerSize) {
@@ -136,7 +141,7 @@ bool FidtrackFinder::toggleFlag(unsigned char flag, bool lock) {
 				}
 				break;
 		}
-	} else if (setYamarashi || setYamaFlip) {
+	}*/else if (setYamarashi || setYamaFlip) {
 		switch(flag) {
 			case KEY_LEFT:
 				if (setYamarashi) detect_yamaarashi = false;
@@ -157,7 +162,7 @@ bool FidtrackFinder::toggleFlag(unsigned char flag, bool lock) {
 				}
 				break;
 		}
-	} else if (setBlobSize || setObjectBlob || setFingerBlob) {
+	} /* else if (setBlobSize || setObjectBlob || setFingerBlob) {
 		switch(flag) {
 			case KEY_LEFT:
 				if (setBlobSize) {
@@ -210,7 +215,7 @@ bool FidtrackFinder::toggleFlag(unsigned char flag, bool lock) {
 				}
 				break;
 		}
-	}
+	} */
 	return lock;
 }
 

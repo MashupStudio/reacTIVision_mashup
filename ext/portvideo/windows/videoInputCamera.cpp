@@ -104,6 +104,7 @@ std::vector<CameraConfig> videoInputCamera::getCameraConfigs(int dev_id) {
 	IAMStreamConfig *lpStreamConfig = NULL;
 
 	char 	nDeviceName[255];
+	char 	devicePath[255];
 	WCHAR 	wDeviceName[255];
 
 	for (int cam_id=0;cam_id<count;cam_id++) {
@@ -138,7 +139,8 @@ std::vector<CameraConfig> videoInputCamera::getCameraConfigs(int dev_id) {
 
 		memset(wDeviceName, 0, sizeof(WCHAR) * 255);
 		memset(nDeviceName, 0, sizeof(char) * 255);
-		hr = getDevice(&lpInputFilter, cam_id, wDeviceName, nDeviceName);
+		memset (devicePath, 0, sizeof(char) * 255); 
+		hr = getDevice(&lpInputFilter, cam_id, wDeviceName, nDeviceName, devicePath);
 
 		if (SUCCEEDED(hr)){
 			hr = lpGraphBuilder->AddFilter(lpInputFilter, wDeviceName);
@@ -166,6 +168,8 @@ std::vector<CameraConfig> videoInputCamera::getCameraConfigs(int dev_id) {
 		cam_cfg.driver = DRIVER_DEFAULT;
 		cam_cfg.device = cam_id;
 		sprintf(cam_cfg.name, "%s", nDeviceName);
+		sprintf(cam_cfg.requiredPath, "%s", devicePath);
+		// printf("%s \n\n",devicePath);
 
 		int iCount = 0;
 		int iSize = 0;
@@ -365,13 +369,14 @@ HRESULT videoInputCamera::setupDevice() {
 	}
 
 	char 	nDeviceName[255];
+	char 	devicePath[255];
 	WCHAR 	wDeviceName[255];
 	memset(wDeviceName, 0, sizeof(WCHAR) * 255);
 	memset(nDeviceName, 0, sizeof(char) * 255);
-
+	memset(devicePath, 0, sizeof(char) * 255);
 	//FIND VIDEO DEVICE AND ADD TO GRAPH//
 	//gets the device specified by the second argument.
-	hr = getDevice(&pInputFilter, cfg->device, wDeviceName, nDeviceName);
+	hr = getDevice(&pInputFilter, cfg->device, wDeviceName, nDeviceName, devicePath);
 
 	if (SUCCEEDED(hr)){
 		sprintf(cfg->name,nDeviceName);
@@ -1147,7 +1152,7 @@ bool videoInputCamera::comUnInit(){
 	return false;
 }
 
-HRESULT videoInputCamera::getDevice(IBaseFilter** gottaFilter, int deviceId, WCHAR * wDeviceName, char * nDeviceName){
+HRESULT videoInputCamera::getDevice(IBaseFilter** gottaFilter, int deviceId, WCHAR * wDeviceName, char * nDeviceName, char * devicePath){
 	BOOL done = false;
 	int deviceCounter = 0;
 
@@ -1178,8 +1183,9 @@ HRESULT videoInputCamera::getDevice(IBaseFilter** gottaFilter, int deviceId, WCH
 				if (SUCCEEDED(hr))
 				{
 					// To retrieve the filter's friendly name, do the following:
-					VARIANT varName;
+					VARIANT varName, varPath;
 					VariantInit(&varName);
+					VariantInit(&varPath);
 					hr = pPropBag->Read(L"FriendlyName", &varName, 0);
 					if (SUCCEEDED(hr))
 					{
@@ -1196,13 +1202,24 @@ HRESULT videoInputCamera::getDevice(IBaseFilter** gottaFilter, int deviceId, WCH
 						hr = pMoniker->BindToObject(NULL, NULL, IID_IBaseFilter, (void**)gottaFilter);
 						done = true;
 					}
+					hr = pPropBag->Read(L"DevicePath", &varPath, 0);
+					if(SUCCEEDED(hr)){
+						int count = 0;
+						while( varPath.bstrVal[count] != 0x00 ) {
+							devicePath[count] = (char)varPath.bstrVal[count];
+							count++;
+						}
+					}
 					VariantClear(&varName);
+					VariantClear(&varPath);
 					pPropBag->Release();
 					pPropBag = NULL;
 					pMoniker->Release();
 					pMoniker = NULL;
 				}
 			}
+
+			
 			deviceCounter++;
 		}
 		pEnumCat->Release();
@@ -1210,7 +1227,6 @@ HRESULT videoInputCamera::getDevice(IBaseFilter** gottaFilter, int deviceId, WCH
 	}
 	pSysDevEnum->Release();
 	pSysDevEnum = NULL;
-
 	if (done) {
 		return hr;	// found it, return native error
 	} else {

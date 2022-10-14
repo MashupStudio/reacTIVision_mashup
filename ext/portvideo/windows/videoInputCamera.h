@@ -217,7 +217,7 @@ private:
 
 	static bool comInit();
 	static bool comUnInit();
-	static HRESULT getDevice(IBaseFilter **pSrcFilter, int deviceID, WCHAR * wDeviceName, char * nDeviceName);
+	static HRESULT getDevice(IBaseFilter **pSrcFilter, int deviceID, WCHAR * wDeviceName, char * nDeviceName, char * devicePath);
 
 	bool getVideoSettingValue(long prop, long &value, long &flag);
 	bool setVideoSettingValue(long prop, long value, long flag);

@@ -74,7 +74,7 @@ void readSettings(application_settings *config) {
 	config->invert_x = false;
 	config->invert_y = false;
 	config->invert_a = false;
-	config->yamaarashi = false;
+	config->yamaarashi = true;// MODIF MASHUP
 	config->yama_flip = false;
 	config->max_fid = UINT_MAX;
 	config->obj_filter = false;
@@ -89,10 +89,10 @@ void readSettings(application_settings *config) {
 	config->min_blob_size = 0;
 	config->object_blobs = false;
 	config->cursor_blobs = false;
-	config->gradient_gate = 32;
-	config->tile_size = 10;
+	config->gradient_gate = 10;// MODIF MASHUP
+	config->tile_size = 5; // MODIF MASHUP
 	config->thread_count = 1;
-	config->display_mode = 2;
+	config->display_mode = 1;// MODIF MASHUP
 	
 	if (strcmp( config->file, "none" ) == 0) {
 #ifdef __APPLE__
@@ -113,7 +113,6 @@ void readSettings(application_settings *config) {
 		sprintf(config->file,"./reacTIVision.xml");
 #endif
 	}
-	
 	tinyxml2::XMLDocument xml_settings;
 	xml_settings.LoadFile(config->file);
 	if( xml_settings.Error() )
@@ -422,13 +421,16 @@ int main(int argc, char* argv[]) {
 	sprintf(config.file,"none");
 
 	const char *app_name = "reacTIVision";
-	const char *version_no = "1.6";
+	const char *version_no = "1.6 - Mashup Studio";
 
 	bool headless = false;
+	bool console = false;
+	bool saveSettings = false;
 
 	std::cout << app_name << " " << version_no << " (" << __DATE__ << ")" << std::endl << std::endl;
 
 	if (argc>1) {
+		console = true;
 		if (strcmp( argv[1], "-h" ) == 0 ) {
 			printUsage(app_name);
 			return 0;
@@ -440,12 +442,17 @@ int main(int argc, char* argv[]) {
 			}
 		} else if( strcmp( argv[1], "-n" ) == 0 ) {
 			headless = true;
+		} else if( strcmp( argv[1], "-console" ) == 0 ) {
+		} else if( strcmp( argv[1], "-save" ) == 0 ) {
+			saveSettings = true;
+			printf("Settings will be saved\n\n");
 		} else if( strcmp( argv[1], "-l" ) == 0 ) {
 			CameraTool::listDevices();
 			return 0;
 		} else if ( (std::string(argv[1]).find("-NSDocumentRevisionsDebugMode")==0 ) || (std::string(argv[1]).find("-psn_")==0) ){
 			// ignore mac specific arguments
 		} else {
+			console = true;
 			printUsage(app_name);
 		}
 	}
@@ -459,9 +466,11 @@ int main(int argc, char* argv[]) {
 
 	readSettings(&config);
 	config.headless = headless;
-
+	if (!console) {
+		FreeConsole();
+	}
 	engine = new VisionEngine(app_name,&config);
-
+	
 	if (!headless) {
 		UserInterface *uiface = new SDLinterface(app_name,config.fullscreen);
 		switch (config.display_mode) {
@@ -475,8 +484,8 @@ int main(int argc, char* argv[]) {
 	TuioServer *server = NULL;
 	FrameProcessor *fiducialfinder	= NULL;
 	FrameProcessor *thresholder	= NULL;
-	FrameProcessor *calibrator	= NULL;
-
+	// FrameProcessor *calibrator	= NULL;
+	// MDIFS MASHUP -- Suppression des filtres et detecteurs inutiles pour nous
 	for (int i=0;i<config.tuio_count;i++) {
 		OscSender *sender = NULL;
 		try { switch (config.tuio_type[i]) {
@@ -498,25 +507,27 @@ int main(int argc, char* argv[]) {
 	server->setInversion(config.invert_x, config.invert_y, config.invert_a);
 
 	thresholder = new FrameThresholder(config.gradient_gate, config.tile_size, config.thread_count);
-	if (config.background) thresholder->toggleFlag(KEY_SPACE,false);
+	/* if (config.background) thresholder->toggleFlag(KEY_SPACE,false); */
 	engine->addFrameProcessor(thresholder);
 
 	fiducialfinder = new FidtrackFinder(server, &config);
 	engine->addFrameProcessor(fiducialfinder);
-
+	/* MODIFS MASHUP -- Suppression des filtres et detecteurs inutiles pour nous
 	calibrator = new CalibrationEngine(config.grid_config);
 	engine->addFrameProcessor(calibrator);
-
+	*/
 	engine->start();
-
+	/*
 	engine->removeFrameProcessor(calibrator);
 	delete calibrator;
-
+	*/
+	/*
 	config.finger_size = ((FidtrackFinder*)fiducialfinder)->getFingerSize();
 	config.finger_sensitivity = ((FidtrackFinder*)fiducialfinder)->getFingerSensitivity();
 	config.max_blob_size = ((FidtrackFinder*)fiducialfinder)->getBlobSize();
 	config.object_blobs = ((FidtrackFinder*)fiducialfinder)->getFiducialBlob();
 	config.cursor_blobs = ((FidtrackFinder*)fiducialfinder)->getFingerBlob();
+	*/
 	config.yamaarashi = ((FidtrackFinder*)fiducialfinder)->getYamaarashi();
 	config.yama_flip = ((FidtrackFinder*)fiducialfinder)->getYamaFlip();
 
@@ -536,6 +547,10 @@ int main(int argc, char* argv[]) {
 	delete engine;
 	delete server;
 
-	writeSettings(&config);
+	if (saveSettings) {
+		printf("Saving\n\n");
+		writeSettings(&config);
+	}
+	
 	return 0;
 }

@@ -1,8 +1,12 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="iso-8859-1" ?>
 <portvideo>
-    <camera driver="default" id="0">
-        <capture width="640" height="480" fps="max" format="default"/>
-        <settings brightness="default" gain="default" exposure="default" sharpness="default" gamma="default" focus="default" white="default" backlight="default"/>
+    <camera driver="default" id="0" name="HD USB Camera" path="\\?\usb#vid_32e4&amp;pid_9230&amp;mi_00#6&amp;22f4e01d&amp;0&amp;0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\global">
+        <capture width="640" height="480" fps="30" format="uyvy"/>
+        <settings brightness="default" contrast="default" sharpness="default" gain="default" exposure="-1" white="default" backlight="default" gamma="default"/>
         <frame width="max" height="max" xoff="0" yoff="0"/>
     </camera>
 </portvideo>
+
+<!--
+name="USB2.0 VGA UVC WebCam" path="\\?\usb#vid_32e4&pid_9230&mi_00#6&22f4e01d&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\global"
+  -->

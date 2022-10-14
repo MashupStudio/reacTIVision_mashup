@@ -105,6 +105,8 @@ struct CameraConfig {
     int device;
 
 	char name[256];
+	char requiredName[256]; // MASHUP STUDIO CODE
+	char requiredPath[256]; // MASHUP STUDIO CODE
     char src[256];
 
     bool color;

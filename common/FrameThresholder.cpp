@@ -205,8 +205,10 @@ bool FrameThresholder::init(int w, int h, int sb, int db) {
 
 	help_text.push_back( "FrameThresholder:");
 	help_text.push_back( "   g - set gradient gate & tile size");
+	/* MASHUP
 	help_text.push_back( "   e - activate frame equalization");
 	help_text.push_back( "   SPACE - reset frame equalization");
+	*/
 
 	return true;
 }
@@ -325,14 +327,14 @@ bool FrameThresholder::toggleFlag(unsigned char flag, bool lock) {
 			break;
 
 		}
-	} else if (flag==KEY_E) {
+	} /*else if (flag==KEY_E) {
 		equalize=!equalize;
 		calibrate=false;
 	} else if (flag==KEY_SPACE) {
 		equalize=false;
 		calibrate=true;
 	}
-
+	*/
 	return lock;
 }
 
